@@ -1,64 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Key</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: #fff;
-            text-align: center;
-            padding: 40px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        #key {
-            font-size: 1.8rem;
-            padding: 10px;
-            background: #222;
-            border-radius: 5px;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background: #28a745;
-            border: none;
-            border-radius: 5px;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>Your Key</h1>
-    <div id="key">BATANGTUROKV2</div>
-    <br>
-    <button onclick="copyKey()">Copy Key</button>
-    <br><br>
-    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-
-    <script>
-        function copyKey() {
-            const keyText = document.getElementById("key").innerText;
-            navigator.clipboard.writeText(keyText).then(() => {
-                alert("Copied: " + keyText);
-            });
-        }
-
-        function toggleDarkMode() {
-            document.body.style.background = 
-                document.body.style.background === "white" ? "#111" : "white";
-            document.body.style.color = 
-                document.body.style.color === "black" ? "#111" : "black";
-        }
-    </script>
-
-</body>
-</html>
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Batang Turok Key</title>  
+    <style>  
+        body { font-family: Arial; background: #121212; color: #fff; text-align: center; padding: 40px; }  
+        h1 { font-size: 2rem; }  
+        .key { font-size: 1.8rem; background: #222; padding: 10px; border-radius: 8px; display: inline-block; margin-bottom: 20px; }  
+        button { padding: 10px 20px; margin: 10px; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; }  
+        .copy-btn { background: #28a745; color: #fff; }  
+        .dark-btn { background: #007bff; color: #fff; }  
+    </style>  
+</head>  
+<body>  <h1>Your Key</h1>  
+<div class="key" id="keyText">BATANGTUROKV2</div>  
+<br>  
+<button class="copy-btn" onclick="copyKey()">Copy Key</button>  
+<button class="dark-btn" onclick="toggleDarkMode()">Toggle Dark Mode</button>  <script>  
+function copyKey() {  
+    const key = document.getElementById("keyText").innerText;  
+    navigator.clipboard.writeText(key).then(() => alert("Copied: " + key));  
+}  
+function toggleDarkMode() {  
+    document.body.style.background = document.body.style.background === "white" ? "#121212" : "white";  
+    document.body.style.color = document.body.style.color === "black" ? "white" : "black";  
+}  
+</script>  </body>  
+</html>  This?
