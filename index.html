@@ -1,29 +1,942 @@
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Batang Turok Key</title>  
-    <style>  
-        body { font-family: Arial; background: #121212; color: #fff; text-align: center; padding: 40px; }  
-        h1 { font-size: 2rem; }  
-        .key { font-size: 1.8rem; background: #222; padding: 10px; border-radius: 8px; display: inline-block; margin-bottom: 20px; }  
-        button { padding: 10px 20px; margin: 10px; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; }  
-        .copy-btn { background: #28a745; color: #fff; }  
-        .dark-btn { background: #007bff; color: #fff; }  
-    </style>  
-</head>  
-<body>  <h1>Your Key</h1>  
-<div class="key" id="keyText">BATANGTUROKV2</div>  
-<br>  
-<button class="copy-btn" onclick="copyKey()">Copy Key</button>  
-<button class="dark-btn" onclick="toggleDarkMode()">Toggle Dark Mode</button>  <script>  
-function copyKey() {  
-    const key = document.getElementById("keyText").innerText;  
-    navigator.clipboard.writeText(key).then(() => alert("Copied: " + key));  
-}  
-function toggleDarkMode() {  
-    document.body.style.background = document.body.style.background === "white" ? "#121212" : "white";  
-    document.body.style.color = document.body.style.color === "black" ? "white" : "black";  
-}  
-</script>  </body>  
-</html>  This?
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellphone Tracker v3.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #64d8ff;
+            text-shadow: 0 0 10px rgba(100, 216, 255, 0.5);
+        }
+        
+        .subtitle {
+            color: #a8e6ff;
+            font-size: 1rem;
+        }
+        
+        .warning {
+            background: linear-gradient(90deg, #ff9900, #ff6600);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            animation: pulse 2s infinite;
+            border: 1px solid #ff9900;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .card {
+            background: rgba(0, 10, 30, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #64d8ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(0, 20, 50, 0.4);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #64d8ff;
+        }
+        
+        .data-label {
+            font-weight: bold;
+            color: #a8e6ff;
+        }
+        
+        .data-value {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .map-container {
+            grid-column: span 2;
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #64d8ff;
+            box-shadow: 0 0 20px rgba(100, 216, 255, 0.3);
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 10, 30, 0.6);
+            border-radius: 12px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #0066ff, #00ccff);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(100, 200, 255, 0.2);
+            color: #a8e6ff;
+            border: 1px solid #64d8ff;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ff3366, #ff0066);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .status-inactive {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        .log-container {
+            background: rgba(0, 10, 30, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: rgba(0, 20, 50, 0.4);
+            border-radius: 6px;
+            border-left: 3px solid #64d8ff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+        
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .sensor-box {
+            background: rgba(0, 30, 60, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(100, 200, 255, 0.3);
+        }
+        
+        .sensor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #64d8ff;
+            margin: 5px 0;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0066ff, #00ccff);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .speed-meter {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .speed-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #64d8ff;
+            text-shadow: 0 0 10px rgba(100, 216, 255, 0.5);
+        }
+        
+        .speed-unit {
+            font-size: 1rem;
+            color: #a8e6ff;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            color: #a8e6ff;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(100, 200, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container {
+                grid-column: 1;
+                height: 300px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        .leaflet-control-attribution {
+            background: rgba(0, 0, 0, 0.7) !important;
+            color: #fff !important;
+        }
+        
+        .leaflet-popup-content {
+            color: #333 !important;
+        }
+        
+        .accuracy-circle {
+            stroke: #64d8ff;
+            stroke-width: 2;
+            fill: rgba(100, 216, 255, 0.1);
+            fill-opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-satellite-dish"></i> Cellphone Tracker v3.0</h1>
+            <p class="subtitle">Live GPS Tracking with OpenStreetMap | No API Key Required</p>
+        </header>
+        
+        <div class="warning" id="permissionWarning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Allow location access when prompted. Works best outdoors with clear sky view.</span>
+        </div>
+        
+        <div class="main-grid">
+            <!-- Location Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-location-dot"></i>
+                    <span>GPS Location</span>
+                    <span class="status-indicator status-inactive" id="gpsStatus"></span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Latitude:</span>
+                    <span class="data-value" id="latitude">--.--°</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Longitude:</span>
+                    <span class="data-value" id="longitude">--.--°</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Accuracy:</span>
+                    <span class="data-value" id="accuracy">-- m</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Speed:</span>
+                    <span class="data-value" id="speed">0 km/h</span>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="accuracyBar"></div>
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #a8e6ff;" id="accuracyText">
+                    GPS Signal: Waiting...
+                </div>
+            </div>
+            
+            <!-- Device Info Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Device Information</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Battery:</span>
+                    <span class="data-value" id="battery">--%</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Network:</span>
+                    <span class="data-value" id="network">--</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Platform:</span>
+                    <span class="data-value" id="platform">--</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label">Last Update:</span>
+                    <span class="data-value" id="lastUpdate">--:--:--</span>
+                </div>
+                
+                <div class="speed-meter">
+                    <div class="speed-value" id="speedValue">0</div>
+                    <div class="speed-unit">km/h</div>
+                </div>
+            </div>
+            
+            <!-- Live Map Card -->
+            <div class="card map-container">
+                <div class="card-title">
+                    <i class="fas fa-map"></i>
+                    <span>Live Location Map</span>
+                </div>
+                <div id="map"></div>
+            </div>
+            
+            <!-- Sensors Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-compass"></i>
+                    <span>Motion Sensors</span>
+                </div>
+                
+                <div class="sensor-grid">
+                    <div class="sensor-box">
+                        <div>Accel X</div>
+                        <div class="sensor-value" id="accelX">0.00</div>
+                        <div>m/s²</div>
+                    </div>
+                    
+                    <div class="sensor-box">
+                        <div>Accel Y</div>
+                        <div class="sensor-value" id="accelY">0.00</div>
+                        <div>m/s²</div>
+                    </div>
+                    
+                    <div class="sensor-box">
+                        <div>Accel Z</div>
+                        <div class="sensor-value" id="accelZ">0.00</div>
+                        <div>m/s²</div>
+                    </div>
+                    
+                    <div class="sensor-box">
+                        <div>Compass</div>
+                        <div class="sensor-value" id="compass">0°</div>
+                        <div>Direction</div>
+                    </div>
+                    
+                    <div class="sensor-box">
+                        <div>Tilt X</div>
+                        <div class="sensor-value" id="tiltX">0°</div>
+                        <div>Front/Back</div>
+                    </div>
+                    
+                    <div class="sensor-box">
+                        <div>Tilt Y</div>
+                        <div class="sensor-value" id="tiltY">0°</div>
+                        <div>Left/Right</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">
+                <i class="fas fa-play"></i> Start Tracking
+            </button>
+            <button class="btn btn-secondary" id="stopBtn" disabled>
+                <i class="fas fa-stop"></i> Stop Tracking
+            </button>
+            <button class="btn btn-secondary" id="shareBtn">
+                <i class="fas fa-share"></i> Share Location
+            </button>
+            <button class="btn btn-danger" id="emergencyBtn">
+                <i class="fas fa-exclamation-triangle"></i> Emergency
+            </button>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="log-container">
+            <div class="card-title">
+                <i class="fas fa-history"></i>
+                <span>Activity Log</span>
+            </div>
+            <div id="activityLog">
+                <div class="log-entry">[System Ready] OpenStreetMap loaded. Click Start Tracking to begin.</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><i class="fas fa-shield-alt"></i> Privacy Protected: All data stays on your device | No API keys needed</p>
+            <p>OpenStreetMap © Contributors | Leaflet © Vladimir Agafonkin</p>
+        </footer>
+    </div>
+
+    <!-- Load Leaflet JS (OpenStreetMap) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    
+    <script>
+        // DOM Elements
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const emergencyBtn = document.getElementById('emergencyBtn');
+        const permissionWarning = document.getElementById('permissionWarning');
+        
+        // Location elements
+        const latitudeEl = document.getElementById('latitude');
+        const longitudeEl = document.getElementById('longitude');
+        const accuracyEl = document.getElementById('accuracy');
+        const speedEl = document.getElementById('speed');
+        const speedValueEl = document.getElementById('speedValue');
+        const accuracyBar = document.getElementById('accuracyBar');
+        const accuracyText = document.getElementById('accuracyText');
+        const gpsStatus = document.getElementById('gpsStatus');
+        
+        // Device elements
+        const batteryEl = document.getElementById('battery');
+        const networkEl = document.getElementById('network');
+        const platformEl = document.getElementById('platform');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        
+        // Sensor elements
+        const accelX = document.getElementById('accelX');
+        const accelY = document.getElementById('accelY');
+        const accelZ = document.getElementById('accelZ');
+        const compassEl = document.getElementById('compass');
+        const tiltX = document.getElementById('tiltX');
+        const tiltY = document.getElementById('tiltY');
+        
+        // Map and tracking variables
+        let map = null;
+        let marker = null;
+        let accuracyCircle = null;
+        let watchId = null;
+        let isTracking = false;
+        let trackHistory = [];
+        let lastPosition = null;
+        let maxSpeed = 0;
+        
+        // Initialize map with OpenStreetMap
+        function initMap() {
+            // Default center (London)
+            const defaultCenter = [51.505, -0.09];
+            
+            // Create map
+            map = L.map('map').setView(defaultCenter, 13);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19,
+            }).addTo(map);
+            
+            // Add marker
+            marker = L.marker(defaultCenter).addTo(map);
+            marker.bindPopup("<b>Your Location</b><br>Waiting for GPS...").openPopup();
+            
+            logActivity('OpenStreetMap loaded successfully');
+        }
+        
+        // Update map with new position
+        function updateMap(lat, lng, accuracy) {
+            const newPos = [lat, lng];
+            
+            // Move marker
+            marker.setLatLng(newPos);
+            
+            // Center map
+            map.setView(newPos, 16);
+            
+            // Update popup
+            const popupText = `
+                <b>Your Location</b><br>
+                Lat: ${lat.toFixed(6)}<br>
+                Lng: ${lng.toFixed(6)}<br>
+                Accuracy: ${Math.round(accuracy)}m
+            `;
+            marker.bindPopup(popupText).openPopup();
+            
+            // Update accuracy circle
+            if (accuracyCircle) {
+                map.removeLayer(accuracyCircle);
+            }
+            
+            accuracyCircle = L.circle(newPos, {
+                color: '#64d8ff',
+                fillColor: '#64d8ff',
+                fillOpacity: 0.2,
+                radius: accuracy
+            }).addTo(map);
+            
+            // Add track line
+            trackHistory.push(newPos);
+            if (trackHistory.length > 1) {
+                L.polyline(trackHistory, {
+                    color: '#0066ff',
+                    weight: 3,
+                    opacity: 0.7
+                }).addTo(map);
+            }
+        }
+        
+        // Start tracking
+        function startTracking() {
+            if (!navigator.geolocation) {
+                logActivity('Geolocation not supported by your browser', 'error');
+                return;
+            }
+            
+            const options = {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            };
+            
+            watchId = navigator.geolocation.watchPosition(
+                handlePositionSuccess,
+                handlePositionError,
+                options
+            );
+            
+            isTracking = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            gpsStatus.className = 'status-indicator status-active';
+            
+            logActivity('GPS Tracking Started');
+        }
+        
+        // Stop tracking
+        function stopTracking() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            isTracking = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            gpsStatus.className = 'status-indicator status-inactive';
+            
+            logActivity('GPS Tracking Stopped');
+        }
+        
+        // Handle position success
+        function handlePositionSuccess(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            const speed = position.coords.speed;
+            const heading = position.coords.heading;
+            
+            // Update UI
+            latitudeEl.textContent = lat.toFixed(6) + '°';
+            longitudeEl.textContent = lng.toFixed(6) + '°';
+            accuracyEl.textContent = Math.round(accuracy) + ' m';
+            
+            // Update speed
+            let speedKmh = 0;
+            if (speed !== null && speed > 0) {
+                speedKmh = Math.round(speed * 3.6 * 100) / 100;
+                if (speedKmh > maxSpeed) maxSpeed = speedKmh;
+            }
+            speedEl.textContent = speedKmh + ' km/h';
+            speedValueEl.textContent = Math.round(speedKmh);
+            
+            // Update heading/compass
+            if (heading !== null) {
+                compassEl.textContent = Math.round(heading) + '°';
+            }
+            
+            // Update accuracy bar
+            const accuracyPercent = Math.max(0, 100 - (accuracy / 2));
+            accuracyBar.style.width = accuracyPercent + '%';
+            
+            // Update accuracy text
+            if (accuracy < 10) {
+                accuracyText.textContent = 'GPS Signal: Excellent';
+                accuracyText.style.color = '#00ff00';
+            } else if (accuracy < 50) {
+                accuracyText.textContent = 'GPS Signal: Good';
+                accuracyText.style.color = '#ffff00';
+            } else if (accuracy < 100) {
+                accuracyText.textContent = 'GPS Signal: Fair';
+                accuracyText.style.color = '#ff9900';
+            } else {
+                accuracyText.textContent = 'GPS Signal: Poor';
+                accuracyText.style.color = '#ff0000';
+            }
+            
+            // Update map
+            updateMap(lat, lng, accuracy);
+            
+            // Update last update time
+            const now = new Date();
+            lastUpdateEl.textContent = now.toLocaleTimeString();
+            
+            // Store position
+            lastPosition = {
+                lat: lat,
+                lng: lng,
+                accuracy: accuracy,
+                speed: speedKmh,
+                timestamp: now.toISOString()
+            };
+            
+            // Hide permission warning after first successful location
+            permissionWarning.style.display = 'none';
+        }
+        
+        // Handle position error
+        function handlePositionError(error) {
+            let message = 'Unknown error';
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = 'Location permission denied. Please allow location access.';
+                    permissionWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = 'Location unavailable. Check your GPS/network.';
+                    break;
+                case error.TIMEOUT:
+                    message = 'Location request timed out.';
+                    break;
+            }
+            
+            gpsStatus.className = 'status-indicator status-inactive';
+            logActivity(`GPS Error: ${message}`, 'error');
+        }
+        
+        // Initialize device info
+        async function initDeviceInfo() {
+            // Platform
+            platformEl.textContent = navigator.platform || 'Unknown';
+            
+            // Network
+            if (navigator.connection) {
+                const conn = navigator.connection;
+                networkEl.textContent = conn.effectiveType || 'Unknown';
+            } else {
+                networkEl.textContent = navigator.onLine ? 'Online' : 'Offline';
+            }
+            
+            // Battery
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    updateBatteryInfo(battery);
+                    
+                    battery.addEventListener('levelchange', () => updateBatteryInfo(battery));
+                    battery.addEventListener('chargingchange', () => updateBatteryInfo(battery));
+                } catch (error) {
+                    batteryEl.textContent = 'N/A';
+                }
+            }
+            
+            // Motion sensors
+            if ('DeviceOrientationEvent' in window) {
+                window.addEventListener('deviceorientation', handleDeviceOrientation);
+            }
+            
+            if ('DeviceMotionEvent' in window) {
+                window.addEventListener('devicemotion', handleDeviceMotion);
+            }
+        }
+        
+        function updateBatteryInfo(battery) {
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? '⚡' : '';
+            batteryEl.textContent = `${level}% ${charging}`;
+            
+            // Color based on level
+            if (level > 50) {
+                batteryEl.style.color = '#00ff00';
+            } else if (level > 20) {
+                batteryEl.style.color = '#ff9900';
+            } else {
+                batteryEl.style.color = '#ff0000';
+            }
+        }
+        
+        function handleDeviceOrientation(event) {
+            if (event.alpha !== null) {
+                compassEl.textContent = Math.round(event.alpha) + '°';
+            }
+            if (event.beta !== null) {
+                tiltX.textContent = Math.round(event.beta) + '°';
+            }
+            if (event.gamma !== null) {
+                tiltY.textContent = Math.round(event.gamma) + '°';
+            }
+        }
+        
+        function handleDeviceMotion(event) {
+            const accel = event.accelerationIncludingGravity;
+            if (accel) {
+                accelX.textContent = accel.x ? accel.x.toFixed(2) : '0.00';
+                accelY.textContent = accel.y ? accel.y.toFixed(2) : '0.00';
+                accelZ.textContent = accel.z ? accel.z.toFixed(2) : '0.00';
+            }
+        }
+        
+        // Share location
+        function shareLocation() {
+            if (!lastPosition) {
+                logActivity('No location data to share', 'warning');
+                return;
+            }
+            
+            const text = `📍 My Location\nLatitude: ${lastPosition.lat.toFixed(6)}\nLongitude: ${lastPosition.lng.toFixed(6)}\nAccuracy: ${Math.round(lastPosition.accuracy)}m\nTime: ${new Date().toLocaleTimeString()}\n\nOpen in Maps: https://www.openstreetmap.org/?mlat=${lastPosition.lat}&mlon=${lastPosition.lng}&zoom=16`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Current Location',
+                    text: text
+                }).then(() => {
+                    logActivity('Location shared successfully');
+                }).catch(err => {
+                    copyToClipboard(text);
+                });
+            } else {
+                copyToClipboard(text);
+            }
+        }
+        
+        // Emergency alert
+        function emergencyAlert() {
+            if (!lastPosition) {
+                logActivity('No location for emergency', 'error');
+                return;
+            }
+            
+            const emergencyMsg = `🚨 EMERGENCY ALERT 🚨\nMy current location:\nLat: ${lastPosition.lat.toFixed(6)}\nLng: ${lastPosition.lng.toFixed(6)}\nAccuracy: ${Math.round(lastPosition.accuracy)}m\nTime: ${new Date().toLocaleTimeString()}\nMap: https://www.openstreetmap.org/?mlat=${lastPosition.lat}&mlon=${lastPosition.lng}&zoom=16`;
+            
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate([1000, 500, 1000, 500, 1000]);
+            }
+            
+            // Try to share
+            if (navigator.share) {
+                navigator.share({
+                    title: '🚨 EMERGENCY LOCATION',
+                    text: emergencyMsg
+                });
+            } else {
+                // Copy to clipboard
+                copyToClipboard(emergencyMsg);
+                logActivity('Emergency location copied to clipboard');
+            }
+            
+            // Log emergency
+            logActivity('EMERGENCY ALERT ACTIVATED - Location shared', 'error');
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                logActivity('Copied to clipboard');
+            }).catch(err => {
+                logActivity('Failed to copy: ' + err, 'error');
+            });
+        }
+        
+        // Log activity
+        function logActivity(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            if (type === 'error') {
+                logEntry.style.borderLeftColor = '#ff0000';
+                logEntry.style.color = '#ff9999';
+            } else if (type === 'warning') {
+                logEntry.style.borderLeftColor = '#ff9900';
+                logEntry.style.color = '#ffcc99';
+            }
+            
+            const logContainer = document.getElementById('activityLog');
+            logContainer.appendChild(logEntry);
+            
+            // Auto-scroll
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 20 entries
+            if (logContainer.children.length > 20) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+        
+        // Initialize everything
+        function init() {
+            logActivity('Initializing Cellphone Tracker v3.0...');
+            
+            // Initialize map
+            initMap();
+            
+            // Initialize device info
+            initDeviceInfo();
+            
+            // Check if geolocation is available
+            if (!navigator.geolocation) {
+                permissionWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Geolocation not supported by your browser';
+                startBtn.disabled = true;
+            }
+            
+            logActivity('System ready. Click Start Tracking to begin.');
+            
+            // Auto-start tracking after 2 seconds (optional)
+            setTimeout(() => {
+                // startTracking(); // Uncomment to auto-start
+            }, 2000);
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startTracking);
+        stopBtn.addEventListener('click', stopTracking);
+        shareBtn.addEventListener('click', shareLocation);
+        emergencyBtn.addEventListener('click', emergencyAlert);
+        
+        // Initialize on load
+        window.addEventListener('load', init);
+        
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isTracking) {
+                logActivity('App minimized. Tracking continues in background.');
+            }
+        });
+        
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            networkEl.textContent = 'Online';
+            networkEl.style.color = '#00ff00';
+            logActivity('Device is online');
+        });
+        
+        window.addEventListener('offline', () => {
+            networkEl.textContent = 'Offline';
+            networkEl.style.color = '#ff0000';
+            logActivity('Device is offline', 'warning');
+        });
+    </script>
+</body>
+</html>
